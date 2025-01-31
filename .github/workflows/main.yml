@@ -1,0 +1,53 @@
+name: loneliestseed-cpu-cross-build
+
+
+on: [push]
+
+jobs:
+  windows_x86:
+    name: x86_64/release/windows
+    runs-on: [windows-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: msys2/setup-msys2@v2
+    - name: build
+      run: |
+       g++ -O3 -m64 main.cpp -o loneliestseed.exe ./cubiomes/finders.c ./cubiomes/util.c ./cubiomes/generator.c ./cubiomes/layers.c -I./include -l:libboinc_api.a -l:libboinc.a -L./include/boinc/lib/x86_64/win -lstdc++ -static -static-libstdc++ -D_WIN64 -DBOINC -DWIN64 -D_WIN32 -DWIN32 -lboinc_api -lboinc
+       dir
+    - uses: actions/upload-artifact@v2
+      with:
+       name: loneliestseed-x86_64-windows
+       path: ./loneliestseed.exe
+
+  linux_x86:
+    name: x86_64/release/linux
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: build
+      run: |
+        g++ -O3 -m64 main.cpp -o loneliestseed ./cubiomes/finders.c ./cubiomes/util.c ./cubiomes/generator.c ./cubiomes/layers.c -I./include -l:libboinc_api.a -l:libboinc.a -L./include/boinc/lib/x86_64/lin -lstdc++ -static -static-libstdc++ -DBOINC -lboinc_api -lboinc -pthread
+        ls -la
+    - uses: actions/upload-artifact@v2
+      with:
+       name: loneliestseed-x86_64-linux
+       path: ./loneliestseed
+
+  linux_aarch64:
+    name: aarch64/release/linux
+    runs-on: [ubuntu-latest]
+    steps:
+    - uses: actions/checkout@v2
+    - name: setup
+      run: |
+        sudo apt install g++-10-aarch64-linux-gnu
+        sudo apt install gcc-10-aarch64-linux-gnu
+    - name: build
+      run: |
+        aarch64-linux-gnu-g++-10 -O3 main.cpp -o loneliestseed ./cubiomes/finders.c ./cubiomes/util.c ./cubiomes/generator.c ./cubiomes/layers.c -I./include -l:libboinc_api.a -l:libboinc.a -L./include/boinc/lib/aarch64/lin -lstdc++ -static -static-libstdc++ -DBOINC -lboinc_api -lboinc -pthread
+        ls -la
+    - uses: actions/upload-artifact@v2
+      with:
+       name: loneliestseed-aarch64-linux
+       path: ./loneliestseed
+  
